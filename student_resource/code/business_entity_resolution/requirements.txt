@@ -1,0 +1,9 @@
+# Pinned to the versions the reported results were produced with (Python 3.14, macOS arm64).
+# All of these are permissively licensed; no model weights are downloaded or used.
+numpy==2.5.3
+scipy==1.18.1
+scikit-learn==1.9.1
+pyarrow==25.0.1
+rapidfuzz==3.14.6
+lightgbm==4.7.0
+anyascii==0.3.3

@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------------------
+# Challenge data — ~2.3GB, supplied by the organisers. Never commit.
+# GitHub rejects files over 100MB and every source file here exceeds that.
+# ---------------------------------------------------------------------------
+student_resource/dataset/
+
+# ---------------------------------------------------------------------------
+# Pipeline intermediates — fully reproducible from the dataset, ~20GB at peak.
+# Override the location with BER_WORK_DIR.
+# ---------------------------------------------------------------------------
+work/
+
+# ---------------------------------------------------------------------------
+# Generated submission files. They are reproducible via s4_predict.py and
+# matching_results.tsv alone is ~25MB, so the repo tracks the code that makes
+# them, not the files. Drop the two lines below if you want them versioned.
+# ---------------------------------------------------------------------------
+student_resource/output/*.tsv
+!student_resource/output/.gitkeep
+
+# Superseded single-file prototype written against the earlier synthetic dataset.
+legacy_prototype/
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---------------------------------------------------------------------------
+# Editors, tooling and OS cruft
+# ---------------------------------------------------------------------------
+.idea/
+.vscode/
+.claude/
+.mcp.json
+.DS_Store
+*.swp
+Thumbs.db
+
+# ---------------------------------------------------------------------------
+# Large binary artefacts that tend to appear during experimentation
+# ---------------------------------------------------------------------------
+*.npy
+*.npz
+*.parquet
+*.zip
+*.log
