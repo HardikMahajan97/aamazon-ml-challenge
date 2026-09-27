@@ -368,6 +368,33 @@ def block_country(split, country, sample_idx=None, workers=4, max_ref=0):
     _G.clear()
 
 
+def auto_workers():
+    """Pick a worker count from the cores and RAM actually available.
+
+    Workers are forked and read the reference matrices copy-on-write, so each one adds
+    only its own transients (a few hundred MB) rather than a copy of the index. The
+    binding constraints are therefore (a) cores, and (b) leaving the *parent* enough
+    room for the largest index plus its shard - about 11GB on the biggest country here.
+
+    Past ~16 workers the sparse products contend for memory bandwidth rather than
+    going faster, so that is the cap regardless of core count.
+    """
+    cores = os.cpu_count() or 4
+    n = max(1, min(16, cores - 2))
+    try:
+        ram_gb = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES") / 1024 ** 3
+    except (ValueError, AttributeError, OSError):
+        ram_gb = None
+    if ram_gb:
+        # Reserve ~12GB for the parent's index + shard, then ~0.6GB per worker.
+        budget = max(1, int((ram_gb - 12) / 0.6))
+        n = max(1, min(n, budget))
+        log(f"  auto workers={n} ({cores} cores, {ram_gb:.0f}GB RAM)")
+    else:
+        log(f"  auto workers={n} ({cores} cores, RAM unknown)")
+    return n
+
+
 def countries(split):
     d = os.path.dirname(work_path("s0", "x"))
     return sorted({fn[len(split) + 1:-len("_s1.parquet")]
@@ -399,11 +426,7 @@ def main():
                     help="cap the reference pool (prefix) - smoke tests only")
     args = ap.parse_args()
     if args.workers <= 0:
-        # Workers are forked and share the reference matrices copy-on-write, so more of
-        # them costs little memory - but past ~8 the sparse products contend for memory
-        # bandwidth rather than going faster.
-        args.workers = max(1, min(8, (os.cpu_count() or 4) - 2))
-        log(f"  auto workers={args.workers} ({os.cpu_count()} cores visible)")
+        args.workers = auto_workers()
     only = {c for c in args.countries.split(",") if c}
     for split in args.splits:
         cs = [c for c in countries(split) if not only or c in only]
